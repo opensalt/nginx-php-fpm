@@ -61,8 +61,10 @@ if [ ! -d "/var/www/html/.git" ]; then
 fi
 
 # Try auto install for composer
-if [ -f "/var/www/html/composer.lock" ]; then
-  composer install --no-dev --working-dir=/var/www/html
+if [[ "$RUN_COMPOSER" == "1" ]] ; then
+  if [ -f "/var/www/html/composer.lock" ]; then
+    composer install --no-dev --working-dir=/var/www/html
+  fi
 fi
 
 # Enable custom nginx config files if they exist
@@ -129,18 +131,18 @@ if [ ! -z "$PUID" ]; then
   deluser nginx
   addgroup -g ${PGID} nginx
   adduser -D -S -h /var/cache/nginx -s /sbin/nologin -G nginx -u ${PUID} nginx
-else
-  # Always chown webroot for better mounting
-  chown -Rf nginx.nginx /var/www/html
+#else
+#  # Always chown webroot for better mounting
+#  chown -Rf nginx.nginx /var/www/html
 fi
 
 # Run custom scripts
 if [[ "$RUN_SCRIPTS" == "1" ]] ; then
-  if [ -d "/var/www/html/scripts/" ]; then
+  if [ -d "/var/www/html/scripts/init" ]; then
     # make scripts executable incase they aren't
-    chmod -Rf 750 /var/www/html/scripts/*
+    chmod -Rf 750 /var/www/html/scripts/init/*
     # run scripts in number order
-    for i in `ls /var/www/html/scripts/`; do /var/www/html/scripts/$i ; done
+    for i in `ls /var/www/html/scripts/init/`; do /var/www/html/scripts/init/$i ; done
   else
     echo "Can't find script directory"
   fi

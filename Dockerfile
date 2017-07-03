@@ -1,4 +1,4 @@
-FROM php:7.1.3-fpm-alpine
+FROM php:7.1.6-fpm-alpine
 
 MAINTAINER ngineered <support@ngineered.co.uk>
 
@@ -160,14 +160,17 @@ RUN echo @testing http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repo
     libffi-dev \
     freetype-dev \
     sqlite-dev \
-    libjpeg-turbo-dev && \
+    libjpeg-turbo-dev \
+    bzip2-dev \
+    icu-dev \
+    mysql-client && \
     docker-php-ext-configure gd \
       --with-gd \
       --with-freetype-dir=/usr/include/ \
       --with-png-dir=/usr/include/ \
       --with-jpeg-dir=/usr/include/ && \
     #curl iconv session
-    docker-php-ext-install pdo_mysql pdo_sqlite mysqli mcrypt gd exif intl xsl json soap dom zip opcache && \
+    docker-php-ext-install pdo_mysql pdo_sqlite mysqli mcrypt gd exif intl xsl json soap dom zip opcache bz2 mbstring pcntl bcmath intl && \
     docker-php-source delete && \
     mkdir -p /etc/nginx && \
     mkdir -p /var/www/app && \
@@ -206,6 +209,15 @@ RUN echo "cgi.fix_pathinfo=0" > ${php_vars} &&\
     echo "post_max_size = 100M"  >> ${php_vars} &&\
     echo "variables_order = \"EGPCS\""  >> ${php_vars} && \
     echo "memory_limit = 128M"  >> ${php_vars} && \
+    echo "short_open_tag = off"  >> ${php_vars} && \
+    echo "realpath_cache_size = 4096K"  >> ${php_vars} && \
+    echo "realpath_cache_ttl = 600"  >> ${php_vars} && \
+    echo "opcache.memory_consumption = 128"  >> ${php_vars} && \
+    echo "opcache.max_accelerated_files = 20000"  >> ${php_vars} && \
+    echo "opcache.interned_strings_buffer = 8"  >> ${php_vars} && \
+    echo "opcache.max_wasted_percentage = 5"  >> ${php_vars} && \
+    echo "opcache.revalidate_freq = 15"  >> ${php_vars} && \
+    echo "php_admin_flag[log_errors] = on"  >> ${php_vars} && \
     sed -i \
         -e "s/;catch_workers_output\s*=\s*yes/catch_workers_output = yes/g" \
         -e "s/pm.max_children = 5/pm.max_children = 4/g" \
@@ -224,6 +236,11 @@ RUN echo "cgi.fix_pathinfo=0" > ${php_vars} &&\
 #    ln -s /etc/php7/php.ini /etc/php7/conf.d/php.ini && \
 #    find /etc/php7/conf.d/ -name "*.ini" -exec sed -i -re 's/^(\s*)#(.*)/\1;\2/g' {} \;
 
+
+ENV DOCKERIZE_VERSION v0.5.0
+RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+    && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+    && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
 # Add Scripts
 ADD scripts/start.sh /start.sh
