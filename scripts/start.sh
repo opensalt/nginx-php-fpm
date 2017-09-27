@@ -179,11 +179,11 @@ fi
 
 # Run custom scripts
 if [[ "$RUN_SCRIPTS" == "1" ]] ; then
-  if [ -d "/var/www/html/scripts/" ]; then
+  if [ -d "/var/www/html/scripts/init" ]; then
     # make scripts executable incase they aren't
-    chmod -Rf 750 /var/www/html/scripts/*
+    chmod -Rf 750 /var/www/html/scripts/init/*
     # run scripts in number order
-    for i in `ls /var/www/html/scripts/`; do /var/www/html/scripts/$i ; done
+    for i in `ls /var/www/html/scripts/init`; do /var/www/html/scripts/init/$i ; done
   else
     echo "Can't find script directory"
   fi
@@ -191,12 +191,14 @@ fi
 
 # Try auto install for composer
 if [ -f "/var/www/html/composer.lock" ]; then
-    if [ "$APPLICATION_ENV" == "development" ]; then
-        composer global require hirak/prestissimo
-        composer install --working-dir=/var/www/html
-    else
-        composer global require hirak/prestissimo
-        composer install --no-dev --working-dir=/var/www/html
+    if [[ "$RUN_COMPOSER" == "1" ]]; then
+        if [ "$APPLICATION_ENV" == "development" ]; then
+            composer global require hirak/prestissimo
+            composer install --working-dir=/var/www/html
+        else
+            composer global require hirak/prestissimo
+            composer install --no-dev --working-dir=/var/www/html
+        fi
     fi
 fi
 
