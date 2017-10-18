@@ -179,11 +179,11 @@ fi
 
 # Run custom scripts
 if [[ "$RUN_SCRIPTS" == "1" ]] ; then
-  if [ -d "/var/www/html/scripts/" ]; then
+  if [ -d "/var/www/html/scripts/init" ]; then
     # make scripts executable incase they aren't
-    chmod -Rf 750 /var/www/html/scripts/*
+    chmod -Rf 750 /var/www/html/scripts/init/*
     # run scripts in number order
-    for i in `ls /var/www/html/scripts/`; do /var/www/html/scripts/$i ; done
+    for i in `ls /var/www/html/scripts/init`; do /var/www/html/scripts/init/$i ; done
   else
     echo "Can't find script directory"
   fi
