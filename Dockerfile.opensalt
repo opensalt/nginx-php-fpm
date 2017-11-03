@@ -9,6 +9,7 @@ RUN apk add --no-cache \
     apk del bzip2-dev
 
 ADD conf/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+ADD conf/input.ini /usr/local/etc/php/conf.d/input.ini
 
 RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz && \
     tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz && \
