@@ -1,4 +1,4 @@
-FROM opensalt/nginx-php:latest
+FROM opensalt/nginx-php:opensalt-latest
 
 ENV NPM_CONFIG_LOGLEVEL info
 ENV NODE_VERSION 6.12.3
