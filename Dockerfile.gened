@@ -1,0 +1,41 @@
+#FROM richarvey/nginx-php-fpm:1.3.10
+FROM opensalt/nginx-php:base-latest
+
+ENV DOCKERIZE_VERSION v0.6.1
+RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz && \
+    tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz && \
+    rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+
+RUN apk add --no-cache \
+    bzip2-dev \
+    mysql-client \
+    grep && \
+    docker-php-ext-install bz2 mbstring pcntl bcmath && \
+    apk del bzip2-dev && \
+    apk add --no-cache --virtual .build-deps \
+    autoconf \
+    gcc \
+    libc-dev \
+    make \
+    openssl-dev \
+    pcre-dev \
+    zlib-dev \
+    linux-headers \
+    curl \
+    gnupg \
+    libxslt-dev \
+    gd-dev \
+    geoip-dev \
+    perl-dev \
+    luajit-dev && \
+    pecl install apcu-5.1.8 apcu_bc-1.0.3 && \
+    docker-php-ext-enable --ini-name 0-apc.ini apcu apc && \
+    pecl install oauth-2.0.2 && \
+    docker-php-ext-enable oauth && \
+    apk del .build-deps
+
+ADD conf/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+ADD conf/input.ini /usr/local/etc/php/conf.d/input.ini
+
+ADD scripts/start.sh /start.sh
+RUN chmod 755 /start.sh
